@@ -1,5 +1,5 @@
-{% set version = "2.4.1" %}
-{% set commit = "4f82d206545920b80429869970ee8c04270ca3c9" %}  # https://github.com/astra-toolbox/astra-toolbox/releases/tag/v2.4.1
+{% set version = "2.5.0" %}
+{% set commit = "934920a46781142c2b8f0177007c395eae601783" %}  # https://github.com/astra-toolbox/astra-toolbox/releases/tag/v2.5.0
 {% set build = 0 %}
 
 package:
@@ -8,9 +8,9 @@ package:
 
 source:
   url: https://github.com/astra-toolbox/astra-toolbox/archive/{{ commit }}.tar.gz
-  sha256: f9f7b1ac66ba0fdb84f24078ea103f64392e6fb46403cec26ca948d0f93ab268
+  sha256: 41ceab45a118df92e1d9c7ffaf17a1eb4441d8450f35ddc5b75d8545a6af4d98
   patches:
-  # patch created from askorikov/astra-toolbox@release_2.4.1_cmake
+  # patch created from askorikov/astra-toolbox@release_2.5.0_cmake
     - cmake.patch
 
 # The libastra ABI is the same for all CUDA versions, but different for CUDA vs

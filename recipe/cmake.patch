@@ -1,19 +1,18 @@
 diff --git a/.gitignore b/.gitignore
-index 6996de71..cb32ffe1 100644
+index 6996de71..cd162239 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -40,7 +40,7 @@ __pycache__
+@@ -40,6 +40,7 @@ __pycache__
  /build/linux/src/*
  /build/linux/matlab/*
  /build/linux/python/*
--/build/linux/*-stamp
 +/build/cmake*
+ /build/linux/*-stamp
  
  # MSVC build output
- /build/msvc/bin/
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 00000000..d2403379
+index 00000000..67c5f72b
 --- /dev/null
 +++ b/CMakeLists.txt
 @@ -0,0 +1,45 @@
@@ -28,7 +27,7 @@ index 00000000..d2403379
 +
 +project(
 +  astra-toolbox
-+  VERSION 2.3.1
++  VERSION 2.5.0
 +  DESCRIPTION
 +    "a MATLAB and Python toolbox of high-performance GPU primitives for 2D and 3D tomography."
 +  LANGUAGES CXX)
@@ -62,16 +61,58 @@ index 00000000..d2403379
 +  NAMESPACE "astra::"
 +  DESTINATION "lib/cmake/astra")
 +
+diff --git a/README.md b/README.md
+index 2377251a..79d676b4 100644
+--- a/README.md
++++ b/README.md
+@@ -19,7 +19,7 @@ See the Python and MATLAB code samples in the `samples/` directory and https://w
+ 
+ ### Windows/Linux, using conda for Python packages
+ 
+-Requirements: [conda](https://conda.io/) Python environment, with 64 bit Python 3.9-3.13.
++Requirements: [conda](https://conda.io/) Python environment, with 64 bit Python 3.10-3.14.
+ 
+ We provide packages for the ASTRA Toolbox in the `astra-toolbox` channel for the
+ conda package manager. We depend on CUDA packages available from the `nvidia`
+@@ -43,7 +43,7 @@ conda install -c conda-forge astra-toolbox=*=py*
+ 
+ ### Linux, using pip for Python packages
+ 
+-Requirements: Python environment with 64 bit Python 3.9-3.13.
++Requirements: Python environment with 64 bit Python 3.10-3.14.
+ 
+ ```
+ pip install astra-toolbox
+diff --git a/python/astra/__init__.py b/python/astra/__init__.py
+index 1b831692..81b7dc04 100644
+--- a/python/astra/__init__.py
++++ b/python/astra/__init__.py
+@@ -23,15 +23,6 @@
+ #
+ # -----------------------------------------------------------------------
+ 
+-import os
+-from . import config
+-
+-if len(config.extra_dll_directories) > 0:
+-    for D in config.extra_dll_directories:
+-        os.add_dll_directory(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), D))
+-    del D
+-
+-
+ # Import astra module first to make error message less confusing in case of import error
+ from . import astra
+ 
 diff --git a/python/pyproject.toml b/python/pyproject.toml
-index 6d18d014..148adaff 100644
+index 47ce16c2..7a9b9769 100644
 --- a/python/pyproject.toml
 +++ b/python/pyproject.toml
-@@ -1,32 +1,2 @@
+@@ -1,46 +1,2 @@
 -# TODO: Move more metadata here from setup.py
 -# (And figure out how to not make that ship every single file)
 -
  [build-system]
--requires = ["setuptools", "numpy", "Cython"]
+-requires = ["setuptools", "numpy", "Cython >= 3.1"]
 -build-backend = "setuptools.build_meta"
 -
 -[tool.astra.nocuda]
@@ -88,8 +129,22 @@ index 6d18d014..148adaff 100644
 -extra_lib = [ 'astra/libastra.so*' ]
 -cuda = true
 -
+-[tool.astra.macos_module]
+-extra_lib = [ 'astra/libastra*.dylib' ]
+-cuda = false
+-
+-[tool.astra.macos_module_cuda]
+-extra_lib = [ 'astra/libastra*.dylib' ]
+-cuda = true
+-
 -[tool.astra.windows_cuda]
--extra_lib = [ 'astra/AstraCuda64.dll', 'astra/cudart64_12.dll', 'astra/cufft64_11.dll' ]
+-extra_lib = [ 'astra/AstraCuda64.dll' ]
+-install_requires = ['nvidia-cuda-runtime-cu12', 'nvidia-cufft-cu12' ]
+-extra_dll_directories = [ 'nvidia\cuda_runtime\bin', 'nvidia\cufft\bin' ]
+-
+-# To check, for cuda 13:
+-# install_requires = ['nvidia-cuda-runtime==13.*', 'nvidia-cufft==12.*']
+-# extra_dll_directories = [ 'nvidia\cu13\bin\x86_64' ]
 -cuda = true
 -
 -[tool.astra.pypi_linux_cuda]
@@ -99,12 +154,12 @@ index 6d18d014..148adaff 100644
 -
 -[tool.astra.conda_cuda]
 -cuda = true
-+requires = ["setuptools ~= 58.0", "wheel", "cython >= 0.13", "numpy"]
++requires = ["setuptools ~= 58.0", "wheel", "cython >= 3.1", "numpy"]
 diff --git a/python/setup.py b/python/setup.py
-index 2d023323..06d186ef 100644
+index e1953757..2b2a3833 100644
 --- a/python/setup.py
 +++ b/python/setup.py
-@@ -22,147 +22,87 @@
+@@ -22,170 +22,87 @@
  # along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
  #
  # -----------------------------------------------------------------------
@@ -121,6 +176,7 @@ index 2d023323..06d186ef 100644
 -import argparse
 -import sys
 -import glob
+-import sysconfig
 -
 -
 -# Load configuration data from pyproject.toml's tool.astra section,
@@ -128,6 +184,7 @@ index 2d023323..06d186ef 100644
 -
 -extra_install_requires = []
 -extra_lib = []
+-extra_dll_directories = []
 -use_cuda = False
 -
 -# We require to be called in specific ways, so that we can find the ASTRA library and sources.
@@ -157,29 +214,47 @@ index 2d023323..06d186ef 100644
 -    extra_lib = section['extra_lib']
 -    if isinstance(extra_lib, str):
 -        extra_lib = [ extra_lib ]
+-if 'extra_dll_directories' in section:
+-    extra_dll_directories = section['extra_dll_directories']
 -if 'cuda' in section:
 -    use_cuda = section['cuda']
 -
+-
+-
+-def update_config(cfg_file, cfg_string):
+-    update_cfg = True
+-    try:
+-        with open(cfg_file, 'r') as cfg:
+-            cfg_fromfile = cfg.read()
+-        if cfg_fromfile == cfg_string:
+-            update_cfg = False
+-    except IOError:
+-        pass
+-
+-    if update_cfg:
+-        with open(cfg_file, 'w') as cfg:
+-            cfg.write(cfg_string)
+-
+-
 -# Write HAVE_CUDA to config.pxi:
 -
--cfg_string = 'DEF HAVE_CUDA=' + str(use_cuda) + '\n'
--update_cfg = True
--
 -self_path = os.path.dirname(os.path.abspath(__file__))
--
 -cfg_file = os.path.join(self_path, 'astra', 'config.pxi')
 -
--try:
--    with open(cfg_file, 'r') as cfg:
--        cfg_fromfile = cfg.read()
--    if cfg_fromfile == cfg_string:
--        update_cfg = False
--except IOError:
--    pass
+-cfg_string = 'DEF HAVE_CUDA=' + str(use_cuda) + '\n'
 -
--if update_cfg:
--    with open(cfg_file, 'w') as cfg:
--        cfg.write(cfg_string)
+-update_config(cfg_file, cfg_string)
+-
+-
+-# Update config.py
+-
+-cfg_file = os.path.join(self_path, 'astra', 'config.py')
+-
+-# basic escaping for the simple Windows paths that are in extra_dll_directories
+-extra_dll_string = '[' + ",".join(["r'" + x.replace('\\', r'\\') + "'" for x in extra_dll_directories])  + ']'
+-cfg_string = "# This file was generated by setup.py with build-time configuration options\nextra_dll_directories = " + extra_dll_string + "\n"
+-
+-update_config(cfg_file, cfg_string)
 +import platform
  
 +from Cython.Build import cythonize
@@ -254,7 +329,10 @@ index 2d023323..06d186ef 100644
 -                                  'dlpack.cpp'))
 -        ext = Extension(modulename, sources=sources, libraries=["astra"])
 -        assert not hasattr(ext, 'cython_directives')
--        ext.cython_directives = {'language_level': "3"}
+-        ext.cython_directives = {'language_level': "3" }
+-        # NB: Disable freethreading on Windows
+-        if os.name != 'nt' and sysconfig.get_config_var("Py_GIL_DISABLED") == 1:
+-            ext.cython_directives['freethreading_compatible'] = True
 -        ext_modules.append(ext)
 -
 -    return ext_modules
@@ -321,9 +399,9 @@ index 2d023323..06d186ef 100644
 -    packages=['astra', 'astra.plugins'],
 -    install_requires=['numpy', 'scipy'] + extra_install_requires,
      name='astra-toolbox',
-     version='2.4.1',
+     version='2.5.0',
      description='High-performance GPU primitives and algorithms for 2D and 3D tomography',
-@@ -172,5 +112,14 @@ setup(
+@@ -195,5 +112,14 @@ setup(
      project_urls={
          'Home page': 'https://astra-toolbox.com',
          'Source': 'https://github.com/astra-toolbox/astra-toolbox'
@@ -341,10 +419,10 @@ index 2d023323..06d186ef 100644
  )
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 new file mode 100644
-index 00000000..a0a40a78
+index 00000000..563d7551
 --- /dev/null
 +++ b/src/CMakeLists.txt
-@@ -0,0 +1,181 @@
+@@ -0,0 +1,174 @@
 +# Collect source and header files --------------------------------------------
 +set(ASTRA_SOURCES
 +    Algorithm.cpp
@@ -358,6 +436,7 @@ index 00000000..a0a40a78
 +    ConeVecProjectionGeometry3D.cpp
 +    CylConeVecProjectionGeometry3D.cpp
 +    Config.cpp
++    Data2D.cpp
 +    Data3D.cpp
 +    DataProjector.cpp
 +    DataProjectorPolicies.cpp
@@ -368,10 +447,6 @@ index 00000000..a0a40a78
 +    Features.cpp
 +    FilteredBackProjectionAlgorithm.cpp
 +    Filters.cpp
-+    Float32Data.cpp
-+    Float32Data2D.cpp
-+    Float32ProjectionData2D.cpp
-+    Float32VolumeData2D.cpp
 +    ForwardProjectionAlgorithm.cpp
 +    Fourier.cpp
 +    GeometryUtil2D.cpp
@@ -387,7 +462,6 @@ index 00000000..a0a40a78
 +    ParallelProjectionGeometry3D.cpp
 +    ParallelVecProjectionGeometry2D.cpp
 +    ParallelVecProjectionGeometry3D.cpp
-+    PlatformDepSystemCode.cpp
 +    PluginAlgorithmFactory.cpp
 +    ProjectionGeometry2D.cpp
 +    ProjectionGeometry2DFactory.cpp
@@ -404,6 +478,7 @@ index 00000000..a0a40a78
 +    SparseMatrixProjectionGeometry2D.cpp
 +    SparseMatrixProjector2D.cpp
 +    Utilities.cpp
++    Vector3D.cpp
 +    VolumeGeometry2D.cpp
 +    VolumeGeometry3D.cpp
 +    XMLConfig.cpp
@@ -465,24 +540,19 @@ index 00000000..a0a40a78
 +      CudaSirtAlgorithm3D.cpp
 +      CudaBackProjectionAlgorithm3D.cpp
 +      CudaForwardProjectionAlgorithm3D.cpp
-+      "${CMAKE_SOURCE_DIR}/cuda/2d/algo.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/par_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/par_bp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/fan_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/fan_bp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/fbp.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/2d/sirt.cu"
++      "${CMAKE_SOURCE_DIR}/cuda/2d/mem2d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/sart.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/2d/cgls.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/2d/em.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/astra.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/util.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/arith.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/fft.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/darthelper.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/darthelper3d.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/3d/algo3d.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/3d/cgls3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_bp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_cyl.cu"
@@ -490,11 +560,12 @@ index 00000000..a0a40a78
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/fdk.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/par3d_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/par3d_bp.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/3d/sirt3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/astra3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/util3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/arith3d.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/3d/mem3d.cu")
++      "${CMAKE_SOURCE_DIR}/cuda/3d/mem3d.cu"
++      "${CMAKE_SOURCE_DIR}/cuda/dlpack_support.cu"
++      "${CMAKE_SOURCE_DIR}/cuda/stream.cu")
 +
 +  set(ASTRA_CUDA_INCLUDES ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 +
@@ -526,21 +597,6 @@ index 00000000..a0a40a78
 +    CUDA::cufft CUDA::cudart)
 +
 +endif()
-diff --git a/src/Globals.cpp b/src/Globals.cpp
-index 5b19eb5a..255747be 100644
---- a/src/Globals.cpp
-+++ b/src/Globals.cpp
-@@ -26,7 +26,10 @@ along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
- */
- 
- #include "astra/Globals.h"
-+
-+#ifdef ASTRA_CUDA
- #include "astra/cuda/2d/astra.h"
-+#endif
- 
- namespace astra {
- 
 diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
 new file mode 100644
 index 00000000..a8e44a66
