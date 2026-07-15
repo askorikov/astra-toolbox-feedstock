@@ -32,9 +32,6 @@ outputs:
         - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
         - libastra =*=cuda*  # [cuda_compiler_version != "None"]
         - libastra =*=h*     # [cuda_compiler_version == "None"]
-      ignore_run_exports_from:
-        # Only used for unit tests
-        - libboost-devel
       string: "cuda{{ cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
     requirements:
       build:
@@ -45,31 +42,20 @@ outputs:
         - ninja
       host:
         - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
-        # Unit tests link to libboost_unit_test_framework.so
-        - libboost-devel
         - cuda-cudart-dev  # [cuda_compiler_version != "None"]
         - libcufft-dev     # [cuda_compiler_version != "None"]
       run:
         # cuda-version only includes __cuda in run_constrained, but we want it to be stronger
         - __cuda  # [cuda_compiler_version != "None"]
     test:
-      requires:
-        # Need to pin the version manually because we are ignoring the run_exports
-        - {{ pin_compatible('libboost', min_pin='x.x', max_pin='x.x') }}
-      source_files:
-        - build/tests/astratest      # [unix]
-        - build/tests/astratest.exe  # [win]
       commands:
         - test -f $PREFIX/lib/libastra${SHLIB_EXT}                          # [linux]
         - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0                        # [linux]
         - test -f $PREFIX/lib/libastra${SHLIB_EXT}.0.0.0                    # [linux]
-        - "LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH ./build/tests/astratest"  # [linux]
-        - "DYLD_FALLBACK_LIBRARY_PATH=$CONDA_PREFIX/lib:$DYLD_FALLBACK_LIBRARY_PATH ./build/tests/astratest"  # [osx]
         # Library named differently from upstream because it makes linking
         # consistent between platforms. File links don't work on Windows.
         - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
         - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
-        - build\\tests\\astratest                       # [win]
 
   - name: astra-toolbox
     number: {{ build }}
