@@ -108,9 +108,6 @@ outputs:
     test:
       imports:
         - astra
-      requires:
-        # To avoid large downloads just for testing after build phase
-        - nomkl  # [not win]
       commands:
         - python -c "import astra; astra.test()"
 
