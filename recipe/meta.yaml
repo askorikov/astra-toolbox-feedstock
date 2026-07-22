@@ -13,17 +13,16 @@ source:
   # patch created from askorikov/astra-toolbox@release_2.5.0_cmake
     - cmake.patch
 
+build:
+  number: {{ build }}
+
 outputs:
   - name: libastra
-    number: {{ build }}
     script: build_libastra.bat  # [win]
     script: build_libastra.sh   # [unix]
-    script_env:
-      - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
-      - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
-      - CUDAARCHS=all       # [cuda_compiler_version != "None"]
-      - CMAKE_GENERATOR=Ninja
     build:
+      number: {{ build }}
+      string: "cuda{{ cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
       track_features:
         # Mark CPU-only version as an extra feature to deprioritize it in favor of
         # CUDA-enabled version when both are available.
@@ -32,7 +31,11 @@ outputs:
         - {{ pin_subpackage('libastra', max_pin='x.x.x') }}
         - libastra =*=cuda*  # [cuda_compiler_version != "None"]
         - libastra =*=h*     # [cuda_compiler_version == "None"]
-      string: "cuda{{ cuda_compiler_version|string }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
+      script_env:
+        - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
+        - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
+        - CUDAARCHS=all       # [cuda_compiler_version != "None"]
+        - CMAKE_GENERATOR=Ninja
     requirements:
       build:
         - {{ compiler('cuda') }}  # [cuda_compiler_version != "None"]
@@ -58,16 +61,16 @@ outputs:
         - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
 
   - name: astra-toolbox
-    number: {{ build }}
     script: build_python_interface.bat  # [win]
     script: build_python_interface.sh   # [unix]
-    script_env:
-      - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
-      - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
     build:
+      number: {{ build }}
       string: "cudapy{{ py }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
       ignore_run_exports_from:
         - {{ compiler('cuda') }}
+      script_env:
+        - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
+        - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
     requirements:
       build:
         - python                                 # [build_platform != target_platform]
