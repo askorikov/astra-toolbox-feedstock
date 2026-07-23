@@ -59,6 +59,9 @@ outputs:
         # consistent between platforms. File links don't work on Windows.
         - if not exist %LIBRARY_LIB%\\astra.lib exit 1  # [win]
         - if not exist %LIBRARY_BIN%\\astra.dll exit 1  # [win]
+    about:
+      summary: >
+        libastra is a C++ library of high-performance GPU primitives for 2D and 3D tomography.
 
   - name: astra-toolbox
     script: build_python_interface.bat  # [win]
