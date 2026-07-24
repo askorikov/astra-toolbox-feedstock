@@ -1,7 +1,11 @@
-About astra-toolbox-feedstock
-=============================
+About astra-toolbox-split-feedstock
+===================================
 
 Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/astra-toolbox-feedstock/blob/main/LICENSE.txt)
+
+
+About astra-toolbox-split
+-------------------------
 
 Home: http://www.astra-toolbox.com
 
@@ -10,11 +14,28 @@ Package license: GPL-3.0-only
 Summary: The ASTRA Toolbox is a Python toolbox of high-performance GPU primitives for 2D and 3D tomography.
 
 
+About libastra
+--------------
+
+
+
+Package license: 
+
+Summary: libastra is a C++ library of high-performance GPU primitives for 2D and 3D tomography.
+
+
 Current build status
 ====================
 
 
-<table>
+<table><tr>
+    <td>GitHub Actions</td>
+    <td>
+      <a href="https://github.com/conda-forge/astra-toolbox-feedstock/actions/workflows/conda-build.yml">
+        <img src="https://github.com/conda-forge/astra-toolbox-feedstock/actions/workflows/conda-build.yml/badge.svg?event=push&branch=main">
+      </a>
+    </td>
+  </tr>
     
   <tr>
     <td>Azure</td>
@@ -28,423 +49,59 @@ Current build status
         <table>
           <thead><tr><th>Variant</th><th>Status</th></tr></thead>
           <tbody><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.10.____cpython</td>
+              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.11.____cpython</td>
+              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNone</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.11.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNone" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.12.____cpython</td>
+              <td>linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.12.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.13.____cp313</td>
+              <td>linux_ppc64le</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.13.____cp313" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.14.____cp314</td>
+              <td>osx_64</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_version12.9python3.14.____cp314" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.10.____cpython</td>
+              <td>win_64_cuda_compiler_version12.9</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.10.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version12.9" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.11.____cpython</td>
+              <td>win_64_cuda_compiler_version13.0</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.11.____cpython" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version13.0" alt="variant">
                 </a>
               </td>
             </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.12.____cpython</td>
+              <td>win_64_cuda_compiler_versionNone</td>
               <td>
                 <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.17cuda_compiler_versionNonepython3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_64_c_stdlib_version2.28cuda_compiler_version13.0python3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_version12.9python3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.17cuda_compiler_versionNonepython3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_aarch64_c_stdlib_version2.28cuda_compiler_version13.0python3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_ppc64le_python3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_python3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_ppc64le_python3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_python3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_ppc64le_python3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_python3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_ppc64le_python3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_python3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>linux_ppc64le_python3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=linux&configuration=linux%20linux_ppc64le_python3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_64_python3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_python3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_64_python3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_python3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_64_python3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_python3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_64_python3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_python3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_64_python3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_64_python3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_arm64_python3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_python3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_arm64_python3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_python3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_arm64_python3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_python3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_arm64_python3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_python3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>osx_arm64_python3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=osx&configuration=osx%20osx_arm64_python3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version12.9python3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version12.9python3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version12.9python3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version12.9python3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version12.9python3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version12.9python3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version12.9python3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version12.9python3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version12.9python3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version12.9python3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version13.0python3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version13.0python3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version13.0python3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version13.0python3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version13.0python3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version13.0python3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version13.0python3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version13.0python3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_version13.0python3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_version13.0python3.14.____cp314" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_versionNonepython3.10.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_versionNonepython3.10.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_versionNonepython3.11.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_versionNonepython3.11.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_versionNonepython3.12.____cpython</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_versionNonepython3.12.____cpython" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_versionNonepython3.13.____cp313</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_versionNonepython3.13.____cp313" alt="variant">
-                </a>
-              </td>
-            </tr><tr>
-              <td>win_64_cuda_compiler_versionNonepython3.14.____cp314</td>
-              <td>
-                <a href="https://dev.azure.com/conda-forge/feedstock-builds/_build/latest?definitionId=16416&branchName=main">
-                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_versionNonepython3.14.____cp314" alt="variant">
+                  <img src="https://dev.azure.com/conda-forge/feedstock-builds/_apis/build/status/astra-toolbox-feedstock?branchName=main&jobName=win&configuration=win%20win_64_cuda_compiler_versionNone" alt="variant">
                 </a>
               </td>
             </tr>
@@ -461,27 +118,28 @@ Current release info
 | Name | Downloads | Version | Platforms |
 | --- | --- | --- | --- |
 | [![Conda Recipe](https://img.shields.io/badge/recipe-astra--toolbox-green.svg)](https://anaconda.org/conda-forge/astra-toolbox) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/astra-toolbox.svg)](https://anaconda.org/conda-forge/astra-toolbox) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/astra-toolbox.svg)](https://anaconda.org/conda-forge/astra-toolbox) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/astra-toolbox.svg)](https://anaconda.org/conda-forge/astra-toolbox) |
+| [![Conda Recipe](https://img.shields.io/badge/recipe-libastra-green.svg)](https://anaconda.org/conda-forge/libastra) | [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/libastra.svg)](https://anaconda.org/conda-forge/libastra) | [![Conda Version](https://img.shields.io/conda/vn/conda-forge/libastra.svg)](https://anaconda.org/conda-forge/libastra) | [![Conda Platforms](https://img.shields.io/conda/pn/conda-forge/libastra.svg)](https://anaconda.org/conda-forge/libastra) |
 
-Installing astra-toolbox
-========================
+Installing astra-toolbox-split
+==============================
 
-Installing `astra-toolbox` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
+Installing `astra-toolbox-split` from the `conda-forge` channel can be achieved by adding `conda-forge` to your channels with:
 
 ```
 conda config --add channels conda-forge
 conda config --set channel_priority strict
 ```
 
-Once the `conda-forge` channel has been enabled, `astra-toolbox` can be installed with `conda`:
+Once the `conda-forge` channel has been enabled, `astra-toolbox, libastra` can be installed with `conda`:
 
 ```
-conda install astra-toolbox
+conda install astra-toolbox libastra
 ```
 
 or with `mamba`:
 
 ```
-mamba install astra-toolbox
+mamba install astra-toolbox libastra
 ```
 
 It is possible to list all of the versions of `astra-toolbox` available on your platform with `conda`:
@@ -551,17 +209,17 @@ Terminology
                   produce the finished article (built conda distributions)
 
 
-Updating astra-toolbox-feedstock
-================================
+Updating astra-toolbox-split-feedstock
+======================================
 
-If you would like to improve the astra-toolbox recipe or build a new
+If you would like to improve the astra-toolbox-split recipe or build a new
 package version, please fork this repository and submit a PR. Upon submission,
 your changes will be run on the appropriate platforms to give the reviewer an
 opportunity to confirm that the changes result in a successful build. Once
 merged, the recipe will be re-built and uploaded automatically to the
 `conda-forge` channel, whereupon the built conda packages will be available for
 everybody to install and use from the `conda-forge` channel.
-Note that all branches in the conda-forge/astra-toolbox-feedstock are
+Note that all branches in the conda-forge/astra-toolbox-split-feedstock are
 immediately built and any created packages are uploaded, so PRs should be based
 on branches in forks, and branches in the main repository should only be used to
 build distinct package versions.
