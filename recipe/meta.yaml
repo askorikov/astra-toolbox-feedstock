@@ -69,8 +69,6 @@ outputs:
     build:
       number: {{ build }}
       string: "cudapy{{ py }}h{{ PKG_HASH }}_{{ build + 100 }}"  # [cuda_compiler_version != "None"]
-      ignore_run_exports_from:
-        - {{ compiler('cuda') }}
       script_env:
         - ASTRA_USE_CUDA=ON   # [cuda_compiler_version != "None"]
         - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
@@ -81,11 +79,9 @@ outputs:
         - cython >=3.1                           # [build_platform != target_platform]
         - numpy                                  # [build_platform != target_platform]
         - {{ compiler('cxx') }}
-        - {{ compiler('cuda') }}                 # [cuda_compiler_version != "None"]
         - {{ stdlib('c') }}
       host:
         - {{ pin_subpackage('libastra', exact=True) }}
-        - cuda-version {{ cuda_compiler_version }}  # [cuda_compiler_version != "None"]
         - cython >=3.1
         - numpy
         - pip
