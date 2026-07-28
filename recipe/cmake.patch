@@ -1,22 +1,21 @@
 diff --git a/.gitignore b/.gitignore
-index 6996de71..cb32ffe1 100644
+index 6996de71..cd162239 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -40,7 +40,7 @@ __pycache__
+@@ -40,6 +40,7 @@ __pycache__
  /build/linux/src/*
  /build/linux/matlab/*
  /build/linux/python/*
--/build/linux/*-stamp
 +/build/cmake*
- 
+ /build/linux/*-stamp
+
  # MSVC build output
- /build/msvc/bin/
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 00000000..d2403379
+index 00000000..7ea1fc23
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,45 @@
+@@ -0,0 +1,37 @@
 +# 3.11.0 is from scikit-build documentation 3.18.0 is required for
 +# CUDA_ARCHITECTURES property
 +cmake_minimum_required(VERSION 3.18.0)
@@ -28,7 +27,7 @@ index 00000000..d2403379
 +
 +project(
 +  astra-toolbox
-+  VERSION 2.3.1
++  VERSION 2.5.0
 +  DESCRIPTION
 +    "a MATLAB and Python toolbox of high-performance GPU primitives for 2D and 3D tomography."
 +  LANGUAGES CXX)
@@ -42,14 +41,6 @@ index 00000000..d2403379
 +
 +add_subdirectory(src)
 +
-+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-+  include(CTest)
-+endif()
-+
-+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME AND BUILD_TESTING)
-+  add_subdirectory(tests)
-+endif()
-+
 +# Installs these targets to CMAKE_INSTALL_PREFIX
 +install(
 +  TARGETS astra
@@ -62,16 +53,58 @@ index 00000000..d2403379
 +  NAMESPACE "astra::"
 +  DESTINATION "lib/cmake/astra")
 +
+diff --git a/README.md b/README.md
+index 2377251a..79d676b4 100644
+--- a/README.md
++++ b/README.md
+@@ -19,7 +19,7 @@ See the Python and MATLAB code samples in the `samples/` directory and https://w
+
+ ### Windows/Linux, using conda for Python packages
+
+-Requirements: [conda](https://conda.io/) Python environment, with 64 bit Python 3.9-3.13.
++Requirements: [conda](https://conda.io/) Python environment, with 64 bit Python 3.10-3.14.
+
+ We provide packages for the ASTRA Toolbox in the `astra-toolbox` channel for the
+ conda package manager. We depend on CUDA packages available from the `nvidia`
+@@ -43,7 +43,7 @@ conda install -c conda-forge astra-toolbox=*=py*
+
+ ### Linux, using pip for Python packages
+
+-Requirements: Python environment with 64 bit Python 3.9-3.13.
++Requirements: Python environment with 64 bit Python 3.10-3.14.
+
+ ```
+ pip install astra-toolbox
+diff --git a/python/astra/__init__.py b/python/astra/__init__.py
+index 1b831692..81b7dc04 100644
+--- a/python/astra/__init__.py
++++ b/python/astra/__init__.py
+@@ -23,15 +23,6 @@
+ #
+ # -----------------------------------------------------------------------
+
+-import os
+-from . import config
+-
+-if len(config.extra_dll_directories) > 0:
+-    for D in config.extra_dll_directories:
+-        os.add_dll_directory(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), D))
+-    del D
+-
+-
+ # Import astra module first to make error message less confusing in case of import error
+ from . import astra
+
 diff --git a/python/pyproject.toml b/python/pyproject.toml
-index 6d18d014..148adaff 100644
+index 47ce16c2..7a9b9769 100644
 --- a/python/pyproject.toml
 +++ b/python/pyproject.toml
-@@ -1,32 +1,2 @@
+@@ -1,46 +1,2 @@
 -# TODO: Move more metadata here from setup.py
 -# (And figure out how to not make that ship every single file)
 -
  [build-system]
--requires = ["setuptools", "numpy", "Cython"]
+-requires = ["setuptools", "numpy", "Cython >= 3.1"]
 -build-backend = "setuptools.build_meta"
 -
 -[tool.astra.nocuda]
@@ -88,8 +121,22 @@ index 6d18d014..148adaff 100644
 -extra_lib = [ 'astra/libastra.so*' ]
 -cuda = true
 -
+-[tool.astra.macos_module]
+-extra_lib = [ 'astra/libastra*.dylib' ]
+-cuda = false
+-
+-[tool.astra.macos_module_cuda]
+-extra_lib = [ 'astra/libastra*.dylib' ]
+-cuda = true
+-
 -[tool.astra.windows_cuda]
--extra_lib = [ 'astra/AstraCuda64.dll', 'astra/cudart64_12.dll', 'astra/cufft64_11.dll' ]
+-extra_lib = [ 'astra/AstraCuda64.dll' ]
+-install_requires = ['nvidia-cuda-runtime-cu12', 'nvidia-cufft-cu12' ]
+-extra_dll_directories = [ 'nvidia\cuda_runtime\bin', 'nvidia\cufft\bin' ]
+-
+-# To check, for cuda 13:
+-# install_requires = ['nvidia-cuda-runtime==13.*', 'nvidia-cufft==12.*']
+-# extra_dll_directories = [ 'nvidia\cu13\bin\x86_64' ]
 -cuda = true
 -
 -[tool.astra.pypi_linux_cuda]
@@ -99,12 +146,12 @@ index 6d18d014..148adaff 100644
 -
 -[tool.astra.conda_cuda]
 -cuda = true
-+requires = ["setuptools ~= 58.0", "wheel", "cython >= 0.13", "numpy"]
++requires = ["setuptools ~= 58.0", "wheel", "cython >= 3.1", "numpy"]
 diff --git a/python/setup.py b/python/setup.py
-index 2d023323..06d186ef 100644
+index e1953757..2b2a3833 100644
 --- a/python/setup.py
 +++ b/python/setup.py
-@@ -22,147 +22,87 @@
+@@ -22,170 +22,87 @@
  # along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
  #
  # -----------------------------------------------------------------------
@@ -121,6 +168,7 @@ index 2d023323..06d186ef 100644
 -import argparse
 -import sys
 -import glob
+-import sysconfig
 -
 -
 -# Load configuration data from pyproject.toml's tool.astra section,
@@ -128,6 +176,7 @@ index 2d023323..06d186ef 100644
 -
 -extra_install_requires = []
 -extra_lib = []
+-extra_dll_directories = []
 -use_cuda = False
 -
 -# We require to be called in specific ways, so that we can find the ASTRA library and sources.
@@ -157,38 +206,56 @@ index 2d023323..06d186ef 100644
 -    extra_lib = section['extra_lib']
 -    if isinstance(extra_lib, str):
 -        extra_lib = [ extra_lib ]
+-if 'extra_dll_directories' in section:
+-    extra_dll_directories = section['extra_dll_directories']
 -if 'cuda' in section:
 -    use_cuda = section['cuda']
 -
+-
+-
+-def update_config(cfg_file, cfg_string):
+-    update_cfg = True
+-    try:
+-        with open(cfg_file, 'r') as cfg:
+-            cfg_fromfile = cfg.read()
+-        if cfg_fromfile == cfg_string:
+-            update_cfg = False
+-    except IOError:
+-        pass
+-
+-    if update_cfg:
+-        with open(cfg_file, 'w') as cfg:
+-            cfg.write(cfg_string)
+-
+-
 -# Write HAVE_CUDA to config.pxi:
 -
--cfg_string = 'DEF HAVE_CUDA=' + str(use_cuda) + '\n'
--update_cfg = True
--
 -self_path = os.path.dirname(os.path.abspath(__file__))
--
 -cfg_file = os.path.join(self_path, 'astra', 'config.pxi')
 -
--try:
--    with open(cfg_file, 'r') as cfg:
--        cfg_fromfile = cfg.read()
--    if cfg_fromfile == cfg_string:
--        update_cfg = False
--except IOError:
--    pass
+-cfg_string = 'DEF HAVE_CUDA=' + str(use_cuda) + '\n'
 -
--if update_cfg:
--    with open(cfg_file, 'w') as cfg:
--        cfg.write(cfg_string)
+-update_config(cfg_file, cfg_string)
+-
+-
+-# Update config.py
+-
+-cfg_file = os.path.join(self_path, 'astra', 'config.py')
+-
+-# basic escaping for the simple Windows paths that are in extra_dll_directories
+-extra_dll_string = '[' + ",".join(["r'" + x.replace('\\', r'\\') + "'" for x in extra_dll_directories])  + ']'
+-cfg_string = "# This file was generated by setup.py with build-time configuration options\nextra_dll_directories = " + extra_dll_string + "\n"
+-
+-update_config(cfg_file, cfg_string)
 +import platform
- 
+
 +from Cython.Build import cythonize
 +import numpy as np
 +from setuptools import setup
- 
+
 +ASTRA_USE_CUDA = os.environ.get('ASTRA_USE_CUDA') in ('ON', 'TRUE', 'YES')
 +print("ASTRA_USE_CUDA is set to {}".format(ASTRA_USE_CUDA))
- 
+
 -# Custom setuptools (sub)command to install extra file into wheel
 +# Create a cython cxi file with either HAVE_CUDA=True or False
 +with open(
@@ -196,13 +263,13 @@ index 2d023323..06d186ef 100644
 +        'w',
 +) as cfg:
 +    cfg.write('DEF HAVE_CUDA={!s}\n'.format(ASTRA_USE_CUDA))
- 
+
 -cmdclass = {}
 +ext_modules = cythonize(
 +    module_list=os.path.join('.', 'astra', '*.pyx'),
 +    language_level=3,  # sets python features to python 3
 +)
- 
+
 -class AddExtraLibCommand(Command):
 -    user_options = [
 +# Add additional parameters to each Extension
@@ -254,7 +321,10 @@ index 2d023323..06d186ef 100644
 -                                  'dlpack.cpp'))
 -        ext = Extension(modulename, sources=sources, libraries=["astra"])
 -        assert not hasattr(ext, 'cython_directives')
--        ext.cython_directives = {'language_level': "3"}
+-        ext.cython_directives = {'language_level': "3" }
+-        # NB: Disable freethreading on Windows
+-        if os.name != 'nt' and sysconfig.get_config_var("Py_GIL_DISABLED") == 1:
+-            ext.cython_directives['freethreading_compatible'] = True
 -        ext_modules.append(ext)
 -
 -    return ext_modules
@@ -313,7 +383,7 @@ index 2d023323..06d186ef 100644
 +
 +with open('README.md', 'r', encoding='utf-8') as f:
      long_description = f.read()
- 
+
  setup(
 -    ext_modules=prepare_ext_modules(),
 -    include_dirs=[np.get_include()],
@@ -321,9 +391,9 @@ index 2d023323..06d186ef 100644
 -    packages=['astra', 'astra.plugins'],
 -    install_requires=['numpy', 'scipy'] + extra_install_requires,
      name='astra-toolbox',
-     version='2.4.1',
+     version='2.5.0',
      description='High-performance GPU primitives and algorithms for 2D and 3D tomography',
-@@ -172,5 +112,14 @@ setup(
+@@ -195,5 +112,14 @@ setup(
      project_urls={
          'Home page': 'https://astra-toolbox.com',
          'Source': 'https://github.com/astra-toolbox/astra-toolbox'
@@ -341,10 +411,10 @@ index 2d023323..06d186ef 100644
  )
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
 new file mode 100644
-index 00000000..a0a40a78
+index 00000000..563d7551
 --- /dev/null
 +++ b/src/CMakeLists.txt
-@@ -0,0 +1,181 @@
+@@ -0,0 +1,174 @@
 +# Collect source and header files --------------------------------------------
 +set(ASTRA_SOURCES
 +    Algorithm.cpp
@@ -358,6 +428,7 @@ index 00000000..a0a40a78
 +    ConeVecProjectionGeometry3D.cpp
 +    CylConeVecProjectionGeometry3D.cpp
 +    Config.cpp
++    Data2D.cpp
 +    Data3D.cpp
 +    DataProjector.cpp
 +    DataProjectorPolicies.cpp
@@ -368,10 +439,6 @@ index 00000000..a0a40a78
 +    Features.cpp
 +    FilteredBackProjectionAlgorithm.cpp
 +    Filters.cpp
-+    Float32Data.cpp
-+    Float32Data2D.cpp
-+    Float32ProjectionData2D.cpp
-+    Float32VolumeData2D.cpp
 +    ForwardProjectionAlgorithm.cpp
 +    Fourier.cpp
 +    GeometryUtil2D.cpp
@@ -387,7 +454,6 @@ index 00000000..a0a40a78
 +    ParallelProjectionGeometry3D.cpp
 +    ParallelVecProjectionGeometry2D.cpp
 +    ParallelVecProjectionGeometry3D.cpp
-+    PlatformDepSystemCode.cpp
 +    PluginAlgorithmFactory.cpp
 +    ProjectionGeometry2D.cpp
 +    ProjectionGeometry2DFactory.cpp
@@ -404,6 +470,7 @@ index 00000000..a0a40a78
 +    SparseMatrixProjectionGeometry2D.cpp
 +    SparseMatrixProjector2D.cpp
 +    Utilities.cpp
++    Vector3D.cpp
 +    VolumeGeometry2D.cpp
 +    VolumeGeometry3D.cpp
 +    XMLConfig.cpp
@@ -465,24 +532,19 @@ index 00000000..a0a40a78
 +      CudaSirtAlgorithm3D.cpp
 +      CudaBackProjectionAlgorithm3D.cpp
 +      CudaForwardProjectionAlgorithm3D.cpp
-+      "${CMAKE_SOURCE_DIR}/cuda/2d/algo.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/par_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/par_bp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/fan_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/fan_bp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/fbp.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/2d/sirt.cu"
++      "${CMAKE_SOURCE_DIR}/cuda/2d/mem2d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/sart.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/2d/cgls.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/2d/em.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/astra.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/util.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/arith.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/fft.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/2d/darthelper.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/darthelper3d.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/3d/algo3d.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/3d/cgls3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_bp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/cone_cyl.cu"
@@ -490,11 +552,12 @@ index 00000000..a0a40a78
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/fdk.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/par3d_fp.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/par3d_bp.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/3d/sirt3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/astra3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/util3d.cu"
 +      "${CMAKE_SOURCE_DIR}/cuda/3d/arith3d.cu"
-+      "${CMAKE_SOURCE_DIR}/cuda/3d/mem3d.cu")
++      "${CMAKE_SOURCE_DIR}/cuda/3d/mem3d.cu"
++      "${CMAKE_SOURCE_DIR}/cuda/dlpack_support.cu"
++      "${CMAKE_SOURCE_DIR}/cuda/stream.cu")
 +
 +  set(ASTRA_CUDA_INCLUDES ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 +
@@ -513,7 +576,7 @@ index 00000000..a0a40a78
 +    astra
 +    PUBLIC
 +    "ASTRA_CUDA")
-+  
++
 +  # ASTRA_BUILDING_CUDA chooses CUDA in favour of HIP toolchain
 +  target_compile_definitions(
 +    astra
@@ -526,52 +589,886 @@ index 00000000..a0a40a78
 +    CUDA::cufft CUDA::cudart)
 +
 +endif()
-diff --git a/src/Globals.cpp b/src/Globals.cpp
-index 5b19eb5a..255747be 100644
---- a/src/Globals.cpp
-+++ b/src/Globals.cpp
-@@ -26,7 +26,10 @@ along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
- */
- 
- #include "astra/Globals.h"
-+
-+#ifdef ASTRA_CUDA
- #include "astra/cuda/2d/astra.h"
-+#endif
- 
- namespace astra {
- 
-diff --git a/tests/CMakeLists.txt b/tests/CMakeLists.txt
-new file mode 100644
-index 00000000..a8e44a66
---- /dev/null
-+++ b/tests/CMakeLists.txt
-@@ -0,0 +1,28 @@
-+# Find libboost components ---------------------------------------------------
-+
-+set(Boost_USE_STATIC_LIBS OFF)
-+set(Boost_USE_MULTITHREADED ON)
-+set(Boost_USE_STATIC_RUNTIME OFF)
-+find_package(Boost 1.71 CONFIG REQUIRED COMPONENTS unit_test_framework)
-+
-+# Collect source and header files --------------------------------------------
-+
-+file(GLOB ASTRA_TEST_SOURCES "${CMAKE_SOURCE_DIR}/tests/*.cpp")
-+
-+set(ASTRA_INCLUDES
-+    "${CMAKE_SOURCE_DIR}/include" ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
-+    "${CMAKE_SOURCE_DIR}/lib/include")
-+
-+# Declare tests and register with cmake
-+
-+add_executable(astratest ${ASTRA_TEST_SOURCES})
-+
-+set_target_properties(
-+  astratest
-+  PROPERTIES POSITION_INDEPENDENT_CODE ON
-+             COMPILE_DEFINITIONS "ASTRA_CUDA"
-+             COMPILE_FEATURES cxx_std_17
-+             INCLUDE_DIRECTORIES "${ASTRA_INCLUDES}"
-+             LINK_LIBRARIES "Boost::unit_test_framework;astra")
-+
-+add_test(COMMAND astratest)
+diff --git a/tests/main.cpp b/tests/main.cpp
+deleted file mode 100644
+index 7dc07424..00000000
+--- a/tests/main.cpp
++++ /dev/null
+@@ -1,36 +0,0 @@
+-/*
+------------------------------------------------------------------------
+-Copyright: 2010-2022, imec Vision Lab, University of Antwerp
+-           2014-2022, CWI, Amsterdam
+-
+-Contact: astra@astra-toolbox.com
+-Website: http://www.astra-toolbox.com/
+-
+-This file is part of the ASTRA Toolbox.
+-
+-
+-The ASTRA Toolbox is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
+-
+-The ASTRA Toolbox is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+-
+------------------------------------------------------------------------
+-*/
+-
+-
+-#define BOOST_TEST_DYN_LINK
+-
+-// Generate main()
+-#define BOOST_AUTO_TEST_MAIN
+-
+-#include <boost/test/unit_test.hpp>
+-#include <boost/test/auto_unit_test.hpp>
+-#include <boost/test/floating_point_comparison.hpp>
+diff --git a/tests/test_AstraObjectManager.cpp b/tests/test_AstraObjectManager.cpp
+deleted file mode 100644
+index 12f593b5..00000000
+--- a/tests/test_AstraObjectManager.cpp
++++ /dev/null
+@@ -1,93 +0,0 @@
+-/*
+------------------------------------------------------------------------
+-Copyright: 2010-2022, imec Vision Lab, University of Antwerp
+-           2014-2022, CWI, Amsterdam
+-
+-Contact: astra@astra-toolbox.com
+-Website: http://www.astra-toolbox.com/
+-
+-This file is part of the ASTRA Toolbox.
+-
+-
+-The ASTRA Toolbox is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
+-
+-The ASTRA Toolbox is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+-
+------------------------------------------------------------------------
+-*/
+-
+-#define BOOST_TEST_DYN_LINK
+-#include <boost/test/unit_test.hpp>
+-#include <boost/test/auto_unit_test.hpp>
+-
+-#include "astra/AstraObjectManager.h"
+-
+-struct TestT {
+-	TestT(int _x) : x(_x) { }
+-	bool operator==(int _x) const { return x == _x; }
+-
+-	int x;
+-	bool isInitialized() const { return true; }
+-	std::string description() const { return ""; }
+-};
+-
+-namespace astra {
+-
+-class CTestManager : public Singleton<CTestManager>, public CAstraObjectManager<TestT>
+-{
+-        virtual std::string getType() const { return "test"; }
+-};
+-
+-DEFINE_SINGLETON(CTestManager);
+-
+-}
+-
+-BOOST_AUTO_TEST_CASE( testAstraObjectManager )
+-{
+-	astra::CTestManager &man = astra::CTestManager::getSingleton();
+-
+-	int i1 = man.store(new TestT(1));
+-	BOOST_REQUIRE(man.hasIndex(i1));
+-	BOOST_CHECK(*(man.get(i1)) == 1);
+-
+-	int i2 = man.store(new TestT(2));
+-	BOOST_REQUIRE(man.hasIndex(i2));
+-	BOOST_CHECK(*(man.get(i1)) == 1);
+-	BOOST_CHECK(*(man.get(i2)) == 2);
+-
+-	man.remove(i1);
+-
+-	BOOST_CHECK(!man.hasIndex(i1));
+-	BOOST_REQUIRE(man.hasIndex(i2));
+-
+-	int i3 = man.store(new TestT(3));
+-	BOOST_REQUIRE(man.hasIndex(i3));
+-	BOOST_CHECK(*(man.get(i2)) == 2);
+-	BOOST_CHECK(*(man.get(i3)) == 3);
+-
+-	TestT* pi4 = new TestT(4);
+-	int i4 = man.store(pi4);
+-	BOOST_REQUIRE(man.hasIndex(i4));
+-	BOOST_CHECK(*(man.get(i2)) == 2);
+-	BOOST_CHECK(*(man.get(i3)) == 3);
+-	BOOST_CHECK(*(man.get(i4)) == 4);
+-
+-	BOOST_CHECK(man.getIndex(pi4) == i4);
+-
+-	man.clear();
+-
+-	BOOST_CHECK(!man.hasIndex(i1));
+-	BOOST_CHECK(!man.hasIndex(i2));
+-	BOOST_CHECK(!man.hasIndex(i3));
+-	BOOST_CHECK(!man.hasIndex(i4));
+-	BOOST_CHECK(!man.getIndex(pi4));
+-}
+diff --git a/tests/test_FanFlatProjectionGeometry2D.cpp b/tests/test_FanFlatProjectionGeometry2D.cpp
+deleted file mode 100644
+index 3da9aee7..00000000
+--- a/tests/test_FanFlatProjectionGeometry2D.cpp
++++ /dev/null
+@@ -1,111 +0,0 @@
+-/*
+------------------------------------------------------------------------
+-Copyright: 2010-2022, imec Vision Lab, University of Antwerp
+-           2014-2022, CWI, Amsterdam
+-
+-Contact: astra@astra-toolbox.com
+-Website: http://www.astra-toolbox.com/
+-
+-This file is part of the ASTRA Toolbox.
+-
+-
+-The ASTRA Toolbox is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
+-
+-The ASTRA Toolbox is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+-
+------------------------------------------------------------------------
+-*/
+-
+-
+-#define BOOST_TEST_DYN_LINK
+-#include <boost/test/unit_test.hpp>
+-#include <boost/test/auto_unit_test.hpp>
+-#include <boost/test/test_case_template.hpp>
+-#include <boost/test/floating_point_comparison.hpp>
+-
+-#include <cmath>
+-
+-#include "astra/FanFlatProjectionGeometry2D.h"
+-
+-BOOST_AUTO_TEST_CASE( testFanFlatProjectionGeometry2D_Constructor )
+-{
+-	std::vector<float> angles{ 0.0f, 1.0f, 2.0f, 3.0f };
+-	astra::CFanFlatProjectionGeometry2D geom(4, 8, 0.5f, std::move(angles), 1.0f, 2.0f);
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK( geom.getProjectionAngleCount() == 4 );
+-	BOOST_CHECK( geom.getDetectorCount() == 8 );
+-	BOOST_CHECK( geom.getDetectorWidth() == 0.5f );
+-	BOOST_CHECK( geom.getProjectionAngle(0) == 0.0f );
+-	BOOST_CHECK( geom.getProjectionAngle(1) == 1.0f );
+-	BOOST_CHECK( geom.getProjectionAngle(2) == 2.0f );
+-	BOOST_CHECK( geom.getProjectionAngle(3) == 3.0f );
+-	BOOST_CHECK( geom.getProjectionAngles()[0] == 0.0f );
+-	BOOST_CHECK( geom.getProjectionAngles()[3] == 3.0f );
+-	BOOST_CHECK( geom.getOriginSourceDistance() == 1.0f );
+-	BOOST_CHECK( geom.getOriginDetectorDistance() == 2.0f );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testFanFlatProjectionGeometry2D_Offsets )
+-{
+-	std::vector<float> angles{ 0.0f, 1.0f, 2.0f, 3.0f };
+-	astra::CFanFlatProjectionGeometry2D geom(4, 8, 0.5f, std::move(angles), 1.0f, 2.0f);
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK( geom.getSourceDetectorDistance() == 3.0f );
+-	BOOST_CHECK_SMALL( geom.getProjectionAngleDegrees(2) - 114.591559026165f, 1e-5f );
+-
+-	// CHECKME: where is the center of the detector array?
+-	BOOST_CHECK( geom.detectorOffsetToIndexFloat(0.0f) == 3.5f );
+-	BOOST_CHECK( geom.detectorOffsetToIndexFloat(0.625f) == 4.75f );
+-	BOOST_CHECK( geom.detectorOffsetToIndex(-0.1f) == 3 );
+-
+-	BOOST_CHECK( geom.indexToDetectorOffset(0) == -1.75f );
+-	BOOST_CHECK( geom.indexToDetectorOffset(1) == -1.25f );
+-
+-	int angle, detector;
+-	geom.indexToAngleDetectorIndex(10, angle, detector);
+-	BOOST_CHECK( angle == 1 );
+-	BOOST_CHECK( detector == 2 );
+-}
+-
+-
+-BOOST_AUTO_TEST_CASE( testFanFlatProjectionGeometry2D_Clone )
+-{
+-	std::vector<float> angles{ 0.0f, 1.0f, 2.0f, 3.0f };
+-	astra::CFanFlatProjectionGeometry2D geom(4, 8, 0.5f, std::move(angles), 1.0f, 2.0f);
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	astra::CFanFlatProjectionGeometry2D* geom2;
+-	geom2 = dynamic_cast<astra::CFanFlatProjectionGeometry2D*>(geom.clone());
+-
+-	BOOST_REQUIRE( geom2 );
+-	BOOST_REQUIRE( geom2->isInitialized() );
+-
+-	BOOST_CHECK( geom.isEqual(*geom2) );
+-	BOOST_CHECK( geom2->getProjectionAngleCount() == 4 );
+-	BOOST_CHECK( geom2->getDetectorCount() == 8 );
+-	BOOST_CHECK( geom2->getDetectorWidth() == 0.5f );
+-	BOOST_CHECK( geom2->getProjectionAngle(0) == 0.0f );
+-	BOOST_CHECK( geom2->getProjectionAngle(1) == 1.0f );
+-	BOOST_CHECK( geom2->getProjectionAngle(2) == 2.0f );
+-	BOOST_CHECK( geom2->getProjectionAngle(3) == 3.0f );
+-	BOOST_CHECK( geom2->getProjectionAngles()[0] == 0.0f );
+-	BOOST_CHECK( geom2->getProjectionAngles()[3] == 3.0f );
+-	BOOST_CHECK( geom2->getOriginSourceDistance() == 1.0f );
+-	BOOST_CHECK( geom2->getOriginDetectorDistance() == 2.0f );
+-	delete geom2;
+-}
+-
+diff --git a/tests/test_Float32ProjectionData2D.cpp b/tests/test_Float32ProjectionData2D.cpp
+deleted file mode 100644
+index 641e16a1..00000000
+--- a/tests/test_Float32ProjectionData2D.cpp
++++ /dev/null
+@@ -1,104 +0,0 @@
+-/*
+------------------------------------------------------------------------
+-Copyright: 2010-2022, imec Vision Lab, University of Antwerp
+-           2014-2022, CWI, Amsterdam
+-
+-Contact: astra@astra-toolbox.com
+-Website: http://www.astra-toolbox.com/
+-
+-This file is part of the ASTRA Toolbox.
+-
+-
+-The ASTRA Toolbox is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
+-
+-The ASTRA Toolbox is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+-
+------------------------------------------------------------------------
+-*/
+-
+-
+-#define BOOST_TEST_DYN_LINK
+-#include <boost/test/unit_test.hpp>
+-#include <boost/test/auto_unit_test.hpp>
+-#include <boost/test/test_case_template.hpp>
+-#include <boost/test/floating_point_comparison.hpp>
+-
+-#include "astra/Float32ProjectionData2D.h"
+-#include "astra/ParallelProjectionGeometry2D.h"
+-
+-// Note: most of the features of CFloat32ProjectionData2D are tested by
+-// the CFloat32Data2D tests.
+-
+-BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Constructor1 )
+-{
+-	astra::float32 angles[] = { 0.0f, 1.0f };
+-	astra::CParallelProjectionGeometry2D geom(2, 4, 0.5f, angles);
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	astra::CFloat32ProjectionData2D data(geom);
+-	BOOST_REQUIRE( data.isInitialized() );
+-
+-	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::PROJECTION );
+-	BOOST_CHECK( data.getGeometry().isEqual(geom) );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Constructor2 )
+-{
+-	astra::float32 angles[] = { 0.0f, 1.0f };
+-	astra::float32 d[] = { 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.f };
+-	astra::CParallelProjectionGeometry2D geom(2, 4, 0.5f, angles);
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	astra::CFloat32ProjectionData2D data(geom, d);
+-	BOOST_REQUIRE( data.isInitialized() );
+-
+-	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::PROJECTION );
+-	BOOST_CHECK( data.getGeometry().isEqual(geom) );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Constructor3 )
+-{
+-	astra::float32 angles[] = { 0.0f, 1.0f };
+-	astra::CParallelProjectionGeometry2D geom(2, 4, 0.5f, angles);
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	astra::CFloat32ProjectionData2D data(geom, 3.5f);
+-	BOOST_REQUIRE( data.isInitialized() );
+-
+-	BOOST_CHECK( data.getType() == astra::CFloat32Data2D::PROJECTION );
+-	BOOST_CHECK( data.getGeometry().isEqual(geom) );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testFloat32ProjectionData2D_Clone )
+-{
+-	astra::float32 angles[] = { 0.0f, 1.0f };
+-	astra::CParallelProjectionGeometry2D geom(2, 4, 0.5f, angles);
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	astra::CFloat32ProjectionData2D data(geom, 3.5f);
+-	BOOST_REQUIRE( data.isInitialized() );
+-
+-	astra::CFloat32ProjectionData2D data2(data);
+-	BOOST_REQUIRE( data2.isInitialized() );
+-
+-	BOOST_CHECK( data2.getGeometry().isEqual(geom) );
+-	BOOST_CHECK( data2.getDataConst()[0] == 3.5f );
+-	BOOST_CHECK( data2.getDataConst()[3] == 3.5f );
+-
+-	astra::CFloat32ProjectionData2D data3;
+-	data3 = data;
+-	BOOST_REQUIRE( data3.isInitialized() );
+-
+-	BOOST_CHECK( data3.getGeometry().isEqual(geom) );
+-	BOOST_CHECK( data3.getDataConst()[0] == 3.5f );
+-	BOOST_CHECK( data3.getDataConst()[3] == 3.5f );
+-}
+diff --git a/tests/test_Fourier.cpp b/tests/test_Fourier.cpp
+deleted file mode 100644
+index 8a802411..00000000
+--- a/tests/test_Fourier.cpp
++++ /dev/null
+@@ -1,58 +0,0 @@
+-/*
+------------------------------------------------------------------------
+-Copyright: 2010-2022, imec Vision Lab, University of Antwerp
+-           2014-2022, CWI, Amsterdam
+-
+-Contact: astra@astra-toolbox.com
+-Website: http://www.astra-toolbox.com/
+-
+-This file is part of the ASTRA Toolbox.
+-
+-
+-The ASTRA Toolbox is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
+-
+-The ASTRA Toolbox is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+-
+------------------------------------------------------------------------
+-*/
+-
+-
+-#define BOOST_TEST_DYN_LINK
+-#include <boost/test/unit_test.hpp>
+-#include <boost/test/auto_unit_test.hpp>
+-#include <boost/test/test_case_template.hpp>
+-#include <boost/test/floating_point_comparison.hpp>
+-
+-#include "astra/Fourier.h"
+-
+-BOOST_AUTO_TEST_CASE( testFourier_FFT_1D_1 )
+-{
+-	astra::float32 data[16] = { 1.0f,0.0f, 1.0f,0.0f, 1.0f,0.0f, 0.0f,0.0f, 0.0f,0.0f, 0.0f,0.0f, 1.0f,0.0f, 1.0f,0.0f };
+-	int ip[6];
+-	astra::float32 w[8];
+-	ip[0] = 0;
+-
+-	astra::cdft(16, -1, data, ip, w);
+-
+-	astra::float32 expected1[16] = { 5.0f,0.0f, 2.414214f,0.0f, -1.0f,0.0f, -0.414214f,0.0f, 1.0f,0.0f, -0.414214f,0.0f, -1.0f,0.0f, 2.414214f,0.0f };
+-	for (unsigned int i = 0; i < 16; ++i) {
+-		BOOST_CHECK_SMALL(data[i] - expected1[i], 0.00001f);
+-	}
+-
+-	astra::cdft(16, 1, data, ip, w);
+-	astra::float32 expected2[16] = { 8.0f,0.0f, 8.0f,0.0f, 8.0f,0.0f, 0.0f,0.0f, 0.0f,0.0f, 0.0f,0.0f, 8.0f,0.0f, 8.0f,0.0f };
+-	for (unsigned int i = 0; i < 16; ++i) {
+-		BOOST_CHECK_SMALL(data[i] - expected2[i], 0.00001f);
+-	}
+-
+-}
+-
+diff --git a/tests/test_ParallelProjectionGeometry2D.cpp b/tests/test_ParallelProjectionGeometry2D.cpp
+deleted file mode 100644
+index bb987b80..00000000
+--- a/tests/test_ParallelProjectionGeometry2D.cpp
++++ /dev/null
+@@ -1,112 +0,0 @@
+-/*
+------------------------------------------------------------------------
+-Copyright: 2010-2022, imec Vision Lab, University of Antwerp
+-           2014-2022, CWI, Amsterdam
+-
+-Contact: astra@astra-toolbox.com
+-Website: http://www.astra-toolbox.com/
+-
+-This file is part of the ASTRA Toolbox.
+-
+-
+-The ASTRA Toolbox is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
+-
+-The ASTRA Toolbox is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+-
+------------------------------------------------------------------------
+-*/
+-
+-
+-#define BOOST_TEST_DYN_LINK
+-#include <boost/test/unit_test.hpp>
+-#include <boost/test/auto_unit_test.hpp>
+-#include <boost/test/test_case_template.hpp>
+-#include <boost/test/floating_point_comparison.hpp>
+-
+-#include "astra/ParallelProjectionGeometry2D.h"
+-
+-BOOST_AUTO_TEST_CASE( testParallelProjectionGeometry2D_Constructor )
+-{
+-	std::vector<float> angles{ 0.0f, 1.0f, 2.0f, 3.0f };
+-	astra::CParallelProjectionGeometry2D geom(4, 8, 0.5f, std::move(angles));
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK( geom.getProjectionAngleCount() == 4 );
+-	BOOST_CHECK( geom.getDetectorCount() == 8 );
+-	BOOST_CHECK( geom.getDetectorWidth() == 0.5f );
+-	BOOST_CHECK( geom.getProjectionAngle(0) == 0.0f );
+-	BOOST_CHECK( geom.getProjectionAngle(1) == 1.0f );
+-	BOOST_CHECK( geom.getProjectionAngle(2) == 2.0f );
+-	BOOST_CHECK( geom.getProjectionAngle(3) == 3.0f );
+-	BOOST_CHECK( geom.getProjectionAngles()[0] == 0.0f );
+-	BOOST_CHECK( geom.getProjectionAngles()[3] == 3.0f );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testParallelProjectionGeometry2D_Offsets )
+-{
+-	std::vector<float> angles{ 0.0f, 1.0f, 2.0f, 3.0f };
+-	astra::CParallelProjectionGeometry2D geom(4, 8, 0.5f, std::move(angles));
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK_SMALL( geom.getProjectionAngleDegrees(2) - 114.59155902f, 1e-5f );
+-
+-	BOOST_CHECK( geom.detectorOffsetToIndexFloat(0.0f) == 3.5f );
+-	BOOST_CHECK( geom.detectorOffsetToIndexFloat(0.625f) == 4.75f );
+-	BOOST_CHECK( geom.detectorOffsetToIndex(-0.1f) == 3 );
+-
+-	BOOST_CHECK( geom.indexToDetectorOffset(0) == -1.75f );
+-	BOOST_CHECK( geom.indexToDetectorOffset(1) == -1.25f );
+-
+-	int angle, detector;
+-	geom.indexToAngleDetectorIndex(10, angle, detector);
+-	BOOST_CHECK( angle == 1 );
+-	BOOST_CHECK( detector == 2 );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testParallelProjectionGeometry2D_Offsets_odd )
+-{
+-	std::vector<float> angles{ 0.0f, 1.0f, 2.0f, 3.0f };
+-	astra::CParallelProjectionGeometry2D geom(4, 7, 0.5f, std::move(angles));
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK( geom.detectorOffsetToIndexFloat(0.0f) == 3.0f );
+-	BOOST_CHECK( geom.detectorOffsetToIndexFloat(0.625f) == 4.25f );
+-}
+-
+-
+-BOOST_AUTO_TEST_CASE( testParallelProjectionGeometry2D_Clone )
+-{
+-	std::vector<float> angles{ 0.0f, 1.0f, 2.0f, 3.0f };
+-	astra::CParallelProjectionGeometry2D geom(4, 8, 0.5f, std::move(angles));
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	astra::CProjectionGeometry2D* geom2 = geom.clone();
+-
+-	BOOST_REQUIRE( geom2->isInitialized() );
+-
+-	BOOST_CHECK( geom.isEqual(*geom2) );
+-	BOOST_CHECK( geom2->getProjectionAngleCount() == 4 );
+-	BOOST_CHECK( geom2->getDetectorCount() == 8 );
+-	BOOST_CHECK( geom2->getDetectorWidth() == 0.5f );
+-	BOOST_CHECK( geom2->getProjectionAngle(0) == 0.0f );
+-	BOOST_CHECK( geom2->getProjectionAngle(1) == 1.0f );
+-	BOOST_CHECK( geom2->getProjectionAngle(2) == 2.0f );
+-	BOOST_CHECK( geom2->getProjectionAngle(3) == 3.0f );
+-	BOOST_CHECK( geom2->getProjectionAngles()[0] == 0.0f );
+-	BOOST_CHECK( geom2->getProjectionAngles()[3] == 3.0f );
+-	delete geom2;
+-}
+-
+diff --git a/tests/test_VolumeGeometry2D.cpp b/tests/test_VolumeGeometry2D.cpp
+deleted file mode 100644
+index 53a79e1b..00000000
+--- a/tests/test_VolumeGeometry2D.cpp
++++ /dev/null
+@@ -1,149 +0,0 @@
+-/*
+------------------------------------------------------------------------
+-Copyright: 2010-2022, imec Vision Lab, University of Antwerp
+-           2014-2022, CWI, Amsterdam
+-
+-Contact: astra@astra-toolbox.com
+-Website: http://www.astra-toolbox.com/
+-
+-This file is part of the ASTRA Toolbox.
+-
+-
+-The ASTRA Toolbox is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
+-
+-The ASTRA Toolbox is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+-
+------------------------------------------------------------------------
+-*/
+-
+-
+-#define BOOST_TEST_DYN_LINK
+-#include <boost/test/unit_test.hpp>
+-#include <boost/test/auto_unit_test.hpp>
+-#include <boost/test/test_case_template.hpp>
+-#include <boost/test/floating_point_comparison.hpp>
+-
+-#include "astra/VolumeGeometry2D.h"
+-
+-BOOST_AUTO_TEST_CASE( testVolumeGeometry2D_Constructor1 )
+-{
+-	astra::CVolumeGeometry2D geom(16, 32);
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK( geom.getGridColCount() == 16 );
+-	BOOST_CHECK( geom.getGridRowCount() == 32 );
+-	BOOST_CHECK( geom.getGridTotCount() == 512 );
+-	BOOST_CHECK( geom.getWindowLengthX() == 16.0f );
+-	BOOST_CHECK( geom.getWindowLengthY() == 32.0f );
+-	BOOST_CHECK( geom.getWindowArea() == 512.0f );
+-	BOOST_CHECK( geom.getPixelLengthX() == 1.0f );
+-	BOOST_CHECK( geom.getPixelLengthY() == 1.0f );
+-	BOOST_CHECK( geom.getPixelArea() == 1.0f );
+-	BOOST_CHECK( geom.getWindowMinX() == -8.0f );
+-	BOOST_CHECK( geom.getWindowMaxX() == 8.0f );
+-	BOOST_CHECK( geom.getWindowMinY() == -16.0f );
+-	BOOST_CHECK( geom.getWindowMaxY() == 16.0f );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testVolumeGeometry2D_Constructor1odd )
+-{
+-	astra::CVolumeGeometry2D geom(5, 7);
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK( geom.getGridColCount() == 5 );
+-	BOOST_CHECK( geom.getGridRowCount() == 7 );
+-	BOOST_CHECK( geom.getGridTotCount() == 35 );
+-	BOOST_CHECK( geom.getWindowLengthX() == 5.0f );
+-	BOOST_CHECK( geom.getWindowLengthY() == 7.0f );
+-	BOOST_CHECK( geom.getWindowArea() == 35.0f );
+-	BOOST_CHECK( geom.getPixelLengthX() == 1.0f );
+-	BOOST_CHECK( geom.getPixelLengthY() == 1.0f );
+-	BOOST_CHECK( geom.getPixelArea() == 1.0f );
+-	BOOST_CHECK( geom.getWindowMinX() == -2.5f );
+-	BOOST_CHECK( geom.getWindowMaxX() == 2.5f );
+-	BOOST_CHECK( geom.getWindowMinY() == -3.5f );
+-	BOOST_CHECK( geom.getWindowMaxY() == 3.5f );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testVolumeGeometry2D_Constructor2 )
+-{
+-	astra::CVolumeGeometry2D geom(16, 32, -1.0f, -2.0f, 3.0f, 4.0f);
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK( geom.getGridColCount() == 16 );
+-	BOOST_CHECK( geom.getGridRowCount() == 32 );
+-	BOOST_CHECK( geom.getGridTotCount() == 512 );
+-	BOOST_CHECK( geom.getWindowLengthX() == 4.0f );
+-	BOOST_CHECK( geom.getWindowLengthY() == 6.0f );
+-	BOOST_CHECK( geom.getWindowArea() == 24.0f );
+-	BOOST_CHECK( geom.getPixelLengthX() == 0.25f );
+-	BOOST_CHECK( geom.getPixelLengthY() == 0.1875f );
+-	BOOST_CHECK( geom.getPixelArea() == 0.046875f );
+-	BOOST_CHECK( geom.getWindowMinX() == -1.0f );
+-	BOOST_CHECK( geom.getWindowMaxX() == 3.0f );
+-	BOOST_CHECK( geom.getWindowMinY() == -2.0f );
+-	BOOST_CHECK( geom.getWindowMaxY() == 4.0f );
+-}
+-
+-BOOST_AUTO_TEST_CASE( testVolumeGeometry2D_Clone )
+-{
+-	astra::CVolumeGeometry2D geom(16, 32, -1.0f, -2.0f, 3.0f, 4.0f);
+-
+-	astra::CVolumeGeometry2D* geom2 = geom.clone();
+-
+-	BOOST_REQUIRE( geom2->isInitialized() );
+-
+-	BOOST_CHECK( geom.isEqual(*geom2) );
+-	BOOST_CHECK( geom2->getGridColCount() == 16 );
+-	BOOST_CHECK( geom2->getGridRowCount() == 32 );
+-	BOOST_CHECK( geom2->getGridTotCount() == 512 );
+-	BOOST_CHECK( geom2->getWindowLengthX() == 4.0f );
+-	BOOST_CHECK( geom2->getWindowLengthY() == 6.0f );
+-	BOOST_CHECK( geom2->getWindowArea() == 24.0f );
+-	BOOST_CHECK( geom2->getPixelLengthX() == 0.25f );
+-	BOOST_CHECK( geom2->getPixelLengthY() == 0.1875f );
+-	BOOST_CHECK( geom2->getPixelArea() == 0.046875f );
+-	BOOST_CHECK( geom2->getWindowMinX() == -1.0f );
+-	BOOST_CHECK( geom2->getWindowMaxX() == 3.0f );
+-	BOOST_CHECK( geom2->getWindowMinY() == -2.0f );
+-	BOOST_CHECK( geom2->getWindowMaxY() == 4.0f );
+-
+-	delete geom2;
+-}
+-
+-BOOST_AUTO_TEST_CASE( testVolumeGeometry2D_Offsets )
+-{
+-	astra::CVolumeGeometry2D geom(16, 32, -1.0f, -2.0f, 3.0f, 4.0f);
+-
+-	BOOST_REQUIRE( geom.isInitialized() );
+-
+-	BOOST_CHECK( geom.pixelRowColToIndex(1,2) == 18 );
+-
+-	int r,c;
+-	geom.pixelIndexToRowCol(66, r, c);
+-	BOOST_CHECK( r == 4 );
+-	BOOST_CHECK( c == 2 );
+-
+-	BOOST_CHECK( geom.pixelColToCenterX(2) == -0.375f );
+-	BOOST_CHECK( geom.pixelColToMinX(2) == -0.5f );
+-	BOOST_CHECK( geom.pixelColToMaxX(2) == -0.25f );
+-
+-	BOOST_CHECK( geom.pixelRowToCenterY(29) == -1.53125f );
+-	BOOST_CHECK( geom.pixelRowToMinY(29) == -1.625f );
+-	BOOST_CHECK( geom.pixelRowToMaxY(29) == -1.4375f );
+-
+-	BOOST_CHECK( geom.coordXToCol(0.1f) == 4 );
+-	BOOST_CHECK( geom.coordYToRow(0.1f) == 20 );
+-}
+diff --git a/tests/test_XMLDocument.cpp b/tests/test_XMLDocument.cpp
+deleted file mode 100644
+index 25123d89..00000000
+--- a/tests/test_XMLDocument.cpp
++++ /dev/null
+@@ -1,172 +0,0 @@
+-/*
+------------------------------------------------------------------------
+-Copyright: 2010-2022, imec Vision Lab, University of Antwerp
+-           2014-2022, CWI, Amsterdam
+-
+-Contact: astra@astra-toolbox.com
+-Website: http://www.astra-toolbox.com/
+-
+-This file is part of the ASTRA Toolbox.
+-
+-
+-The ASTRA Toolbox is free software: you can redistribute it and/or modify
+-it under the terms of the GNU General Public License as published by
+-the Free Software Foundation, either version 3 of the License, or
+-(at your option) any later version.
+-
+-The ASTRA Toolbox is distributed in the hope that it will be useful,
+-but WITHOUT ANY WARRANTY; without even the implied warranty of
+-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-GNU General Public License for more details.
+-
+-You should have received a copy of the GNU General Public License
+-along with the ASTRA Toolbox. If not, see <http://www.gnu.org/licenses/>.
+-
+------------------------------------------------------------------------
+-*/
+-
+-
+-#define BOOST_TEST_DYN_LINK
+-#include <boost/test/unit_test.hpp>
+-#include <boost/test/auto_unit_test.hpp>
+-
+-#include "astra/XMLDocument.h"
+-#include "astra/XMLConfig.h"
+-
+-BOOST_AUTO_TEST_CASE( testXMLDocument_Constructor1 )
+-{
+-	astra::XMLDocument *doc = astra::XMLDocument::createDocument("test");
+-	BOOST_REQUIRE(doc);
+-
+-	astra::XMLNode root = doc->getRootNode();
+-
+-	BOOST_REQUIRE(root);
+-
+-	BOOST_CHECK(root.getName() == "test");
+-	BOOST_CHECK(root.getContent().empty());
+-
+-	delete doc;
+-
+-}
+-
+-BOOST_AUTO_TEST_CASE( testXMLDocument_FileIO )
+-{
+-	astra::XMLDocument *doc = astra::XMLDocument::createDocument("test");
+-
+-	doc->saveToFile("test.xml");
+-
+-	astra::XMLDocument *doc2 = astra::XMLDocument::readFromFile("test.xml");
+-	astra::XMLNode root = doc2->getRootNode();
+-
+-	BOOST_REQUIRE(root);
+-
+-	BOOST_CHECK(root.getName() == "test");
+-	BOOST_CHECK(root.getContent().empty());
+-
+-	delete doc2;
+-	delete doc;
+-
+-}
+-
+-BOOST_AUTO_TEST_CASE( testXMLDocument_CreateNodes )
+-{
+-	astra::XMLDocument *doc = astra::XMLDocument::createDocument("test");
+-	BOOST_REQUIRE(doc);
+-
+-	astra::XMLNode root = doc->getRootNode();
+-	BOOST_REQUIRE(root);
+-
+-	astra::XMLNode node = root.addChildNode("child");
+-	BOOST_REQUIRE(node);
+-
+-	node.addAttribute("attr", "val");
+-
+-	doc->saveToFile("test2.xml");
+-
+-	delete doc;
+-
+-	doc = astra::XMLDocument::readFromFile("test2.xml");
+-	BOOST_REQUIRE(doc);
+-	root = doc->getRootNode();
+-	BOOST_REQUIRE(node);
+-	node = root.getSingleNode("child");
+-	BOOST_REQUIRE(node);
+-
+-	BOOST_CHECK(node.hasAttribute("attr"));
+-	BOOST_CHECK(node.getAttribute("attr") == "val");
+-
+-	delete doc;
+-}
+-
+-BOOST_AUTO_TEST_CASE( testXMLDocument_Options )
+-{
+-	astra::XMLDocument *doc = astra::XMLDocument::createDocument("test");
+-	BOOST_REQUIRE(doc);
+-
+-	astra::XMLNode root = doc->getRootNode();
+-	BOOST_REQUIRE(root);
+-
+-	BOOST_CHECK(!root.hasOption("opt"));
+-
+-	root.addOption("opt", "val");
+-
+-	BOOST_CHECK(root.hasOption("opt"));
+-
+-	BOOST_CHECK(root.getOption("opt") == "val");
+-
+-	delete doc;
+-
+-}
+-
+-BOOST_AUTO_TEST_CASE( testXMLDocument_List )
+-{
+-	astra::XMLDocument *doc = astra::XMLDocument::createDocument("test");
+-	BOOST_REQUIRE(doc);
+-
+-	astra::XMLNode root = doc->getRootNode();
+-	BOOST_REQUIRE(root);
+-
+-	astra::XMLNode node = root.addChildNode("child");
+-	BOOST_REQUIRE(node);
+-
+-
+-	float fl[] = { 1.0, 3.5, 2.0, 4.75 };
+-
+-	node.setContent(fl, sizeof(fl)/sizeof(fl[0]));
+-
+-	doc->saveToFile("test3.xml");
+-
+-	delete doc;
+-
+-	doc = astra::XMLDocument::readFromFile("test3.xml");
+-	BOOST_REQUIRE(doc);
+-	root = doc->getRootNode();
+-	BOOST_REQUIRE(root);
+-	node = root.getSingleNode("child");
+-	BOOST_REQUIRE(node);
+-
+-	std::vector<astra::float32> f = node.getContentNumericalArray();
+-
+-	BOOST_CHECK(f[0] == fl[0]);
+-	BOOST_CHECK(f[1] == fl[1]);
+-	BOOST_CHECK(f[2] == fl[2]);
+-	BOOST_CHECK(f[3] == fl[3]);
+-
+-	delete doc;
+-
+-}
+-
+-BOOST_AUTO_TEST_CASE( testXMLDocument_Config )
+-{
+-	astra::XMLConfig* cfg = new astra::XMLConfig("VolumeGeometry2D");
+-
+-	cfg->self.addChildNode("GridColCount", 1);
+-	cfg->self.addChildNode("GridRowCount", 2);
+-
+-	cfg->self.addOption("WindowMinX", 3);
+-	cfg->self.addOption("WindowMaxX", 4);
+-	cfg->self.addOption("WindowMinY", 5);
+-	cfg->self.addOption("WindowMaxY", 6);
+-
+-	delete cfg;
+-}
