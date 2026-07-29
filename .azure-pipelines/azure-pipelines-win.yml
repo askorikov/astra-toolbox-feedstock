@@ -8,8 +8,8 @@ jobs:
     vmImage: windows-2022
   strategy:
     matrix:
-      win_64_cuda_compiler_version12.9:
-        CONFIG: win_64_cuda_compiler_version12.9
+      win_64_cuda_compiler_version12.9is_freethreadingfalse:
+        CONFIG: win_64_cuda_compiler_version12.9is_freethreadingfalse
         UPLOAD_PACKAGES: 'True'
         build_workspace_dir: D:\\bld\\
         free_disk_space: skip
@@ -17,8 +17,8 @@ jobs:
         resize_partitions: false
         store_build_artifacts: false
         tools_install_dir: D:\Miniforge
-      win_64_cuda_compiler_version13.0:
-        CONFIG: win_64_cuda_compiler_version13.0
+      win_64_cuda_compiler_version13.0is_freethreadingfalse:
+        CONFIG: win_64_cuda_compiler_version13.0is_freethreadingfalse
         UPLOAD_PACKAGES: 'True'
         build_workspace_dir: D:\\bld\\
         free_disk_space: skip
@@ -26,8 +26,8 @@ jobs:
         resize_partitions: false
         store_build_artifacts: false
         tools_install_dir: D:\Miniforge
-      win_64_cuda_compiler_versionNone:
-        CONFIG: win_64_cuda_compiler_versionNone
+      win_64_cuda_compiler_versionNoneis_freethreadingfalse:
+        CONFIG: win_64_cuda_compiler_versionNoneis_freethreadingfalse
         UPLOAD_PACKAGES: 'True'
         build_workspace_dir: D:\\bld\\
         free_disk_space: skip
