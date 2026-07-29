@@ -15,7 +15,6 @@ source:
 
 build:
   number: {{ build }}
-  skip: true  # [is_freethreading and win]
 
 outputs:
   - name: libastra
@@ -75,6 +74,8 @@ outputs:
         - ASTRA_USE_CUDA=OFF  # [cuda_compiler_version == "None"]
       # Only build Python bindings on one CUDA version (it's compatible with all CUDA versions)
       skip: true  # [cuda_compiler_version == "12.9"]
+      # Astra doesn't support freethreading on Windows at the moment
+      skip: true  # [is_freethreading and win]
     requirements:
       build:
         - python                                 # [build_platform != target_platform]
