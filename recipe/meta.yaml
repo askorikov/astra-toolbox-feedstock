@@ -85,8 +85,8 @@ outputs:
         - {{ stdlib('c') }}
       host:
         - libastra =={{ version }}
-        - libastra =*=cuda*  # [cuda_compiler_version != "None"]
-        - libastra =*=h*     # [cuda_compiler_version == "None"]
+        - libastra * cuda*  # [cuda_compiler_version != "None"]
+        - libastra * h*     # [cuda_compiler_version == "None"]
         - cython >=3.1
         - numpy
         - pip
@@ -95,8 +95,8 @@ outputs:
       run:
         # Need another pin here because run_exports doesn't work in-between subpackages
         - libastra =={{ version }}
-        - libastra =*=cuda*  # [cuda_compiler_version != "None"]
-        - libastra =*=h*     # [cuda_compiler_version == "None"]
+        - libastra * cuda*  # [cuda_compiler_version != "None"]
+        - libastra * h*     # [cuda_compiler_version == "None"]
         - python
         - scipy
     test:
